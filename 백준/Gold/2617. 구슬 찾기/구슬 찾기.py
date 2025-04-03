@@ -1,34 +1,49 @@
 import sys
-N, M = map(int, input().split())
 
-heavy_list = [[] for _ in range(N+1)]  # heavy_list[노드] = [노드보다 무거운 것들]
-light_list = [[] for _ in range(N+1)]  # light_list[노드] = [노드보다 가벼운 것들]
+input= sys.stdin.readline
 
-for _ in range(M):
-    heavy, light = map(int, sys.stdin.readline().split())
-    heavy_list[heavy].append(light)
-    light_list[light].append(heavy)
+N,M=map(int, input().split())
+
+nodes_origin={}
+nodes_reverse={}
+
+result=[0]*(N+1)
+
+for i in range(1, N+1):
+    nodes_origin[i]=[]
+    nodes_reverse[i]=[]
+
+for i in range(M):
+    a, b= map(int, input().split()) 
+    
+    nodes_origin[b].append(a) #b와 연결된 노드들 (정방향)
+    nodes_reverse[a].append(b) #a와 연결된 노드들 (역방향)
+
+def dfs(list, start):
+    visited = set()
+    stack = [(start)]
+    depth = 0  # 최대 깊이 저장
+
+    while stack:
+        cur_node = stack.pop()
+        if cur_node not in visited:
+            visited.add(cur_node)
+            depth +=1
+            for adj in list[cur_node]:
+                if adj not in visited:
+                    stack.append((adj))
+        
+
+    return depth-1
+     
+mid=(N+1)//2
+cnt=0
 
 
-def DFS(list, root):
-    """root보다 가볍거나/무거운 것의 개수 구하는 함수"""
-    count = 0
-    for node in list[root]:
-        if not visited[node]:  # 방문하지 않았으면
-            visited[node] = True  # 방문 처리
-            count += 1
-            count += DFS(list, node)
-    return count
+for i in range(1, N+1):
+    if dfs(nodes_origin, i) >= mid:
+        cnt+=1
+    if dfs(nodes_reverse,i) >=mid:
+        cnt+=1
 
-
-mid = (N+1)/2
-result = 0
-
-for root in range(1, N+1):
-    visited = [False] * (N+1)
-    if DFS(heavy_list, root) >= mid:
-        result += 1
-    if DFS(light_list, root) >= mid:
-        result += 1
-
-print(result)
+print(cnt)
